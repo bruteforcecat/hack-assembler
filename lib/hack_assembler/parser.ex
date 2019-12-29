@@ -12,6 +12,7 @@ defmodule HackAssembler.Parser do
     |> case do
       {:ok, instructions} ->
         {:ok, Enum.reverse(instructions)}
+
       err ->
         err
     end
@@ -23,7 +24,6 @@ defmodule HackAssembler.Parser do
 
   # use recursion instead of reduce to allow "short-circuit"
   defp do_parse([code_line | code_lines], instructions) do
-    IO.inspect code_line, label: "code_line"
     case parse_instruction(code_line) do
       {:ok, :comment} ->
         do_parse(code_lines, instructions)
@@ -31,8 +31,7 @@ defmodule HackAssembler.Parser do
       {:ok, instruction} ->
         do_parse(code_lines, [instruction | instructions])
 
-      {:error, e} ->
-        IO.inspect e, label: "e"
+      {:error, _e} ->
         {:error, "unable to parse"}
     end
   end
@@ -74,9 +73,10 @@ defmodule HackAssembler.Parser do
   def parse_instruction(line) when is_binary(line) do
     line
     |> String.replace(~r/ |\r|\/\/.*$/, "")
-    |> case  do
+    |> case do
       "" ->
         {:ok, :comment}
+
       l ->
         do_parse_instruction(l)
     end
@@ -135,8 +135,7 @@ defmodule HackAssembler.Parser do
             err
         end
 
-      e ->
-        IO.inspect e, label: "eee"
+      _e ->
         {:error, "more than 1 ';'"}
     end
   end
@@ -161,8 +160,7 @@ defmodule HackAssembler.Parser do
             err
         end
 
-      e ->
-        IO.inspect e, label: "eee"
+      _e ->
         {:error, "more than 1 '=' assignment"}
     end
   end
@@ -171,9 +169,9 @@ defmodule HackAssembler.Parser do
     {:ok, comp}
   end
 
-  #defp parse_comp(comp), do: IO.inspect comp, label: "comp"
+  # defp parse_comp(comp), do: IO.inspect comp, label: "comp"
   defp parse_comp(comp) do
-    IO.inspect comp, label: "comp"
+    IO.inspect(comp, label: "comp")
     {:error, "invalid comp"}
   end
 end

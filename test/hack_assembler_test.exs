@@ -30,7 +30,7 @@ defmodule HackAssemblerTest do
     %{
       assembly_code_file_path: "./test/fixtures/rect/RectL.asm",
       machine_code_file_path: "./test/fixtures/rect/RectL.hack"
-    },
+    }
   ]
 
   describe "assemble/1" do
@@ -41,14 +41,16 @@ defmodule HackAssemblerTest do
     end
 
     test "successfully compile hack assembly code to hack machine code" do
-      for %{assembly_code_file_path: assembly_code_file_path, machine_code_file_path: machine_code_file_path} <- @fixtures do
-        output_path = tmp_path(Path.basename(assembly_code_file_path)) 
+      for %{
+            assembly_code_file_path: assembly_code_file_path,
+            machine_code_file_path: machine_code_file_path
+          } <- @fixtures do
+        output_path = tmp_path(Path.basename(assembly_code_file_path))
         assert :ok == HackAssembler.assemble(assembly_code_file_path, output_path: output_path)
-        IO.inspect assembly_code_file_path
+        IO.inspect(assembly_code_file_path)
         assert File.read!(machine_code_file_path) == File.read!(output_path)
       end
     end
-
   end
 
   defp tmp_path() do

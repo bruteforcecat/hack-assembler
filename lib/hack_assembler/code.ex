@@ -14,7 +14,7 @@ defmodule HackAssembler.Code do
             {addr, ""} ->
               addr
 
-            :error ->
+            _ ->
               Map.get(symbol_table, l)
           end
 
@@ -31,7 +31,10 @@ defmodule HackAssembler.Code do
 
   defp encode_comp(comp) do
     case comp do
-      c when c in ["0", nil] ->
+      nil ->
+        "0000000"
+
+      "0" ->
         "0101010"
 
       "1" ->

@@ -29,42 +29,57 @@ defmodule HackAssembler.SymbolTable do
 
   @spec build(list(Parser.instruction())) :: map()
   def build(instructions) do
-    instructions
-    |> Enum.reduce(
-      %{next_line_num: 0, next_address_val: 16, symbol_table: @preset_symbols},
-      fn
-        {:c, _}, acc ->
-          %{acc | next_line_num: acc.next_line_num + 1}
+    %{symbol_table: symbol_table, var_symbols: var_symbols} =
+      instructions
+      |> Enum.reduce(
+        %{next_line_num: 0, symbol_table: @preset_symbols, var_symbols: []},
+        fn
+          {:c, _}, acc ->
+            %{acc | next_line_num: acc.next_line_num + 1}
 
-        {:a, addr}, acc ->
-          case Integer.parse(addr) do
-            :error ->
-              case Map.get(acc.symbol_table, addr) do
-                nil ->
-                  acc
-                  |> Map.update!(:symbol_table, &Map.put(&1, addr, acc.next_address_val))
-                  |> Map.put(:next_address_val, acc.next_address_val + 1)
+          {:a, addr}, acc ->
+            case Integer.parse(addr) do
+              :error ->
+                case Enum.member?(acc.var_symbols, addr) do
+                  false ->
+                    acc
+                    |> Map.put(:var_symbols, [addr | acc.var_symbols])
 
-                _ ->
-                  acc
-              end
+                  true ->
+                    acc
+                end
 
-            _ ->
-              acc
-          end
-          |> Map.put(:next_line_num, acc.next_line_num + 1)
+              _ ->
+                acc
+            end
+            |> Map.put(:next_line_num, acc.next_line_num + 1)
 
-        {:l, label}, acc ->
-          case Map.get(acc.symbol_table, label) do
-            nil ->
-              acc
-              |> Map.update!(:symbol_table, &Map.put(&1, label, acc.next_line_num))
+          {:l, label}, acc ->
+            case Map.get(acc.symbol_table, label) do
+              nil ->
+                acc
+                |> Map.update!(:symbol_table, &Map.put(&1, label, acc.next_line_num))
 
-            _ ->
-              acc
-          end
+              _ ->
+                acc
+            end
+        end
+      )
+
+    var_symbols
+    |> Enum.reduce(%{symbol_table: symbol_table, next_addr_val: 16}, fn var, acc ->
+      case Map.get(acc.symbol_table, var) do
+        nil ->
+          %{
+            acc
+            | symbol_table: Map.put(acc.symbol_table, var, acc.next_addr_val),
+              next_addr_val: acc.next_addr_val + 1
+          }
+
+        _ ->
+          acc
       end
-    )
+    end)
     |> Map.get(:symbol_table)
   end
 end
