@@ -67,6 +67,7 @@ defmodule HackAssembler.SymbolTable do
       )
 
     var_symbols
+    |> Enum.reverse()
     |> Enum.reduce(%{symbol_table: symbol_table, next_addr_val: 16}, fn var, acc ->
       case Map.get(acc.symbol_table, var) do
         nil ->

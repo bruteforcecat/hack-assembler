@@ -169,9 +169,7 @@ defmodule HackAssembler.Parser do
     {:ok, comp}
   end
 
-  # defp parse_comp(comp), do: IO.inspect comp, label: "comp"
-  defp parse_comp(comp) do
-    IO.inspect(comp, label: "comp")
+  defp parse_comp(_comp) do
     {:error, "invalid comp"}
   end
 end

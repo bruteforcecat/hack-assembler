@@ -45,9 +45,8 @@ defmodule HackAssemblerTest do
             assembly_code_file_path: assembly_code_file_path,
             machine_code_file_path: machine_code_file_path
           } <- @fixtures do
-        output_path = tmp_path(Path.basename(assembly_code_file_path))
+        output_path = tmp_path(Path.basename(machine_code_file_path))
         assert :ok == HackAssembler.assemble(assembly_code_file_path, output_path: output_path)
-        IO.inspect(assembly_code_file_path)
         assert File.read!(machine_code_file_path) == File.read!(output_path)
       end
     end

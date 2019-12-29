@@ -32,7 +32,7 @@ defmodule HackAssembler.Code do
   defp encode_comp(comp) do
     case comp do
       nil ->
-        "0000000"
+        "1111111"
 
       "0" ->
         "0101010"
