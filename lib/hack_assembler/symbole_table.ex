@@ -48,6 +48,9 @@ defmodule HackAssembler.SymbolTable do
                 _ ->
                   acc
               end
+
+            _ ->
+              acc
           end
           |> Map.put(:next_line_num, acc.next_line_num + 1)
 
