@@ -74,11 +74,13 @@ defmodule HackAssembler.Parser do
     case String.last(rest) do
       ")" ->
         label = String.slice(rest, 0..-2)
+
         if is_valid_symbol?(label) do
           {:ok, {:l, label}}
         else
           {:error, "l instruction contain invalid symbol character"}
         end
+
       _ ->
         {:error, "label instruction does not end with closing brace"}
     end
@@ -103,6 +105,7 @@ defmodule HackAssembler.Parser do
         case parse_dest_comp(dest_comp) do
           {:ok, {nil, comp}} ->
             {:error, "invalid instruction with only comp"}
+
           {:ok, {dest, comp}} ->
             {:ok, {:c, %{comp: comp, dest: dest, jump: nil}}}
 
