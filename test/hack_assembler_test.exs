@@ -6,31 +6,31 @@ defmodule HackAssemblerTest do
     %{
       assembly_code_file_path: "./test/fixtures/add/Add.asm",
       machine_code_file_path: "./test/fixtures/add/Add.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/max/Max.asm",
-      machine_code_file_path: "./test/fixtures/max/Max.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/max/MaxL.asm",
-      machine_code_file_path: "./test/fixtures/max/MaxL.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/pong/Pong.asm",
-      machine_code_file_path: "./test/fixtures/pong/Pong.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/pong/PongL.asm",
-      machine_code_file_path: "./test/fixtures/pong/PongL.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/rect/Rect.asm",
-      machine_code_file_path: "./test/fixtures/rect/Rect.hack"
-    },
-    %{
-      assembly_code_file_path: "./test/fixtures/rect/RectL.asm",
-      machine_code_file_path: "./test/fixtures/rect/RectL.hack"
     }
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/max/Max.asm",
+    #      machine_code_file_path: "./test/fixtures/max/Max.hack"
+    #    },
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/max/MaxL.asm",
+    #      machine_code_file_path: "./test/fixtures/max/MaxL.hack"
+    #    },
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/pong/Pong.asm",
+    #      machine_code_file_path: "./test/fixtures/pong/Pong.hack"
+    #    },
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/pong/PongL.asm",
+    #      machine_code_file_path: "./test/fixtures/pong/PongL.hack"
+    #    },
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/rect/Rect.asm",
+    #      machine_code_file_path: "./test/fixtures/rect/Rect.hack"
+    #    },
+    #    %{
+    #      assembly_code_file_path: "./test/fixtures/rect/RectL.asm",
+    #      machine_code_file_path: "./test/fixtures/rect/RectL.hack"
+    #    }
   ]
 
   describe "assemble/1" do

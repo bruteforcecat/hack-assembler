@@ -9,7 +9,10 @@ defmodule HackAssembler.AssemblyCode do
   @type t() :: list(instruction)
 
   @spec convert_to_machine_code(t()) :: MachineCode.t()
-  def convert_to_machine_code(_), do: []
+  def convert_to_machine_code(assembly_code_instructions) do
+    IO.inspect(assembly_code_instructions)
+    []
+  end
 end
 
 defmodule HackAssembler.MachineCode do

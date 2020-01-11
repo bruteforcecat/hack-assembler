@@ -66,14 +66,5 @@ defmodule HackAssembler.ParserTest do
       assert {:ok, {:c, %{comp: "D-A", dest: "AMD", jump: "JLT"}}, ""} ==
                Parser.parse_instruction().("AMD=D-A;JLT")
     end
-  end
 
-  #  describe "parse/1" do
-  #    test "successfully parse multi-line valid instruction" do
-  #      assert {:ok, [
-  #        %{}
-  #      ]} == Parser.parse("""
-  #      """)
-  #    end
-  #  end
 end

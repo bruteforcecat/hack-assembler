@@ -1,10 +1,4 @@
 defmodule HackAssembler.Parser do
-  alias HackAssembler.AssemblyCode
-  @spec parse(String.t()) :: {:ok, list(AssemblyCode.instruction())} | {:error, String.t()}
-  def parse(machine_code_str) do
-    parser = parse_instruction()
-    parser.(machine_code_str)
-  end
 
   @jump_codes ["JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP"]
   @dest_codes ["MD", "AM", "AD", "AMD", "M", "D", "A"]
@@ -39,22 +33,67 @@ defmodule HackAssembler.Parser do
     "-M"
   ]
 
+  alias HackAssembler.AssemblyCode
+
+  @spec parse(String.t()) :: {:ok, list(AssemblyCode.instruction())} | {:error, String.t()}
+  def parse(machine_code_str) do
+    parser = many(parse_instruction())
+
+    case parser.(machine_code_str) do
+      {:ok, instructions, ""} ->
+        {:ok, instructions}
+
+      err ->
+        err
+    end
+  end
+
   def parse_instruction() do
     sequence([
       whitespace(),
+      many(parse_comment()),
       choice([
         parser_c_instruction(),
         parser_a_instruction(),
         parser_l_instruction()
       ]),
-      whitespace()
+      skip_until_next_non_blank_line()
     ])
-    |> map(fn [_, instruction, _] ->
+    |> map(fn [_, _, instruction, _] ->
+      IO.inspect instruction, label: "instruction"
       instruction
     end)
   end
 
-  defp parser_c_instruction() do
+#  def parse_instruction() do
+#    sequence([
+#      whitespace(),
+#      many(parse_comment()),
+#      choice([
+#        parser_c_instruction(),
+#        parser_a_instruction(),
+#        parser_l_instruction()
+#      ]),
+#      skip_until_next_non_blank_line()
+#    ])
+#    |> map(fn [_, _, instruction, _] ->
+#      IO.inspect instruction, label: "instruction"
+#      instruction
+#    end)
+#  end
+
+  def parse_comment() do
+    sequence([
+      whitespace(),
+      sequence([ char(?/), char(?/) ]),
+      skip_until_next_non_blank_line(),
+    ])
+    |> map(fn _ ->
+      nil
+    end)
+  end
+
+  def parser_c_instruction() do
     sequence([
       parse_dest(),
       parse_comp(),
@@ -87,7 +126,7 @@ defmodule HackAssembler.Parser do
     end)
   end
 
-  defp parser_a_instruction() do
+  def parser_a_instruction() do
     sequence([
       char(?@),
       choice([
@@ -100,7 +139,7 @@ defmodule HackAssembler.Parser do
     end)
   end
 
-  defp parser_l_instruction() do
+  def parser_l_instruction() do
     sequence([
       char(?(),
       identifier(),
@@ -137,7 +176,7 @@ defmodule HackAssembler.Parser do
     |> choice()
   end
 
-  defp choice(parsers) when is_list(parsers) do
+  def choice(parsers) when is_list(parsers) do
     fn input ->
       case parsers do
         [] ->
@@ -150,7 +189,7 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp sequence(parsers) do
+  def sequence(parsers) do
     fn input ->
       case parsers do
         [] ->
@@ -164,13 +203,13 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp return(val) do
+  def return(val) do
     fn input ->
       {:ok, val, input}
     end
   end
 
-  defp keyword(expected) do
+  def keyword(expected) do
     identifier()
     |> token()
     |> satisfy(fn identifier ->
@@ -179,13 +218,13 @@ defmodule HackAssembler.Parser do
     |> map(fn _ -> expected end)
   end
 
-  defp identifier() do
+  def identifier() do
     many(identifier_char())
     |> satisfy(&(&1 != []))
     |> map(&to_string/1)
   end
 
-  defp some(parser) do
+  def some(parser) do
     fn input ->
       case many(parser).(input) do
         {:ok, [], _} ->
@@ -197,7 +236,7 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp many(parser) do
+  def many(parser) do
     fn input ->
       case parser.(input) do
         {:error, _reason} ->
@@ -210,14 +249,14 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp map(parser, mapper) do
+  def map(parser, mapper) do
     fn input ->
       with {:ok, term, rest} <- parser.(input),
            do: {:ok, mapper.(term), rest}
     end
   end
 
-  defp bind(parser, g) do
+  def bind(parser, g) do
     fn input ->
       with {:ok, term, rest} <- parser.(input) do
         case g.(term) do
@@ -238,11 +277,11 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp identifier_char(),
+  def identifier_char(),
     do:
       choice([ascii_letter(), char(?_), char(?:), char(?_), char(?|), char(?+), char(?-), digit()])
 
-  defp satisfy(parser, acceptor) do
+  def satisfy(parser, acceptor) do
     fn input ->
       with {:ok, term, rest} <- parser.(input) do
         if acceptor.(term),
@@ -252,7 +291,7 @@ defmodule HackAssembler.Parser do
     end
   end
 
-  defp token(parser) do
+  def token(parser) do
     sequence([
       many(choice([char(?\s), char(?\n)])),
       parser,
@@ -261,15 +300,31 @@ defmodule HackAssembler.Parser do
     |> map(fn [_lw, term, _tw] -> term end)
   end
 
-  defp digit(), do: satisfy(char(), fn char -> char in ?0..?9 end)
+  def none_of(chars), do: satisfy(char(), fn char -> char not in chars end)
 
-  defp ascii_letter(), do: satisfy(char(), fn char -> char in ?A..?Z or char in ?a..?z end)
+  def digit(), do: satisfy(char(), fn char -> char in ?0..?9 end)
 
-  defp whitespace(), do: many(choice([char(?\s), char(?\n)]))
+  def ascii_letter(), do: satisfy(char(), fn char -> char in ?A..?Z or char in ?a..?z end)
 
-  defp char(expected), do: satisfy(char(), &(&1 == expected))
+  def whitespace(), do: many(choice([char(?\s), char(?\r), char(?\n), keyword("\r\n")]))
 
-  defp char() do
+  def end_of_line() do
+    choice([sequence([char(?\r), char(?\n)]), char(?\n), char(?\r)])
+  end
+
+  def skip_until_next_non_blank_line() do
+    sequence(
+      [
+        many(none_of([?\r, ?\n])),
+        many(end_of_line())
+      ]
+    )
+  end
+
+
+  def char(expected), do: satisfy(char(), &(&1 == expected))
+
+  def char() do
     fn input ->
       case input do
         "" ->
