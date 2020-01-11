@@ -1,11 +1,12 @@
 defmodule HackAssembler do
-  alias HackAssembler.{SymbolTable, Parser, Code}
+  alias HackAssembler.{SymbolTable, Parser, Code, AssemblyCode}
 
   @spec assemble(String.t(), [{:output_path, String.t()}]) :: :ok | {:error, term()}
   def assemble(file_path, opts) do
     file_path
     |> File.read!()
     |> Parser.parse()
+    |> AssemblyCode.convert_to_machine_code()
     |> case do
       {:ok, instructions} ->
         symbol_table =
