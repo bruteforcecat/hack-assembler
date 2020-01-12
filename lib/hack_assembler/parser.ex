@@ -1,5 +1,4 @@
 defmodule HackAssembler.Parser do
-
   @jump_codes ["JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP"]
   @dest_codes ["MD", "AM", "AD", "AMD", "M", "D", "A"]
   @comp_codes [
@@ -60,33 +59,15 @@ defmodule HackAssembler.Parser do
       skip_until_next_non_blank_line()
     ])
     |> map(fn [_, _, instruction, _] ->
-      IO.inspect instruction, label: "instruction"
       instruction
     end)
   end
 
-#  def parse_instruction() do
-#    sequence([
-#      whitespace(),
-#      many(parse_comment()),
-#      choice([
-#        parser_c_instruction(),
-#        parser_a_instruction(),
-#        parser_l_instruction()
-#      ]),
-#      skip_until_next_non_blank_line()
-#    ])
-#    |> map(fn [_, _, instruction, _] ->
-#      IO.inspect instruction, label: "instruction"
-#      instruction
-#    end)
-#  end
-
   def parse_comment() do
     sequence([
       whitespace(),
-      sequence([ char(?/), char(?/) ]),
-      skip_until_next_non_blank_line(),
+      sequence([char(?/), char(?/)]),
+      skip_until_next_non_blank_line()
     ])
     |> map(fn _ ->
       nil
@@ -313,14 +294,11 @@ defmodule HackAssembler.Parser do
   end
 
   def skip_until_next_non_blank_line() do
-    sequence(
-      [
-        many(none_of([?\r, ?\n])),
-        many(end_of_line())
-      ]
-    )
+    sequence([
+      many(none_of([?\r, ?\n])),
+      many(end_of_line())
+    ])
   end
-
 
   def char(expected), do: satisfy(char(), &(&1 == expected))
 

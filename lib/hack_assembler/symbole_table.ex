@@ -27,7 +27,9 @@ defmodule HackAssembler.SymbolTable do
     "KDB" => 24576
   }
 
-  @spec build(list(Parser.instruction())) :: map()
+  @type t() :: map()
+
+  @spec build(list(Parser.instruction())) :: t()
   def build(instructions) do
     %{symbol_table: symbol_table, var_symbols: var_symbols} =
       instructions
